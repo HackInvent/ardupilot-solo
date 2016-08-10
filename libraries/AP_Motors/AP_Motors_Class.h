@@ -55,6 +55,7 @@
 #define AP_MOTORS_SPIN_WHEN_ARMED   70  // spin motors at this PWM value when armed
 
 #define AP_MOTORS_YAW_HEADROOM_DEFAULT  200
+#define THRUST_LOW_CRITICAL_BLEND_TIME_MS 1000
 
 #define AP_MOTORS_THR_LOW_CMP_DEFAULT   0.5f // ratio controlling the max throttle output during competing requests of low throttle from the pilot (or autopilot) and higher throttle for attitude control.  Higher favours Attitude over pilot input
 #define AP_MOTORS_THST_EXPO_DEFAULT     0.5f // set to 0 for linear and 1 for second order approximation
@@ -293,6 +294,9 @@ protected:
     float               _throttle_thr_mix;      // mix between throttle and hover throttle for 0 to 1 and ratio above hover throttle for >1
     float               _throttle_thr_mix_desired; // desired throttle_low_comp value, actual throttle_low_comp is slewed towards this value over 1~2 seconds
     float               _motor_out_pct[AP_MOTORS_MAX_NUM_MOTORS];
+    bool                _thrust_low_critical;    // true when additional thrust is required to prevent a crash
+    uint32_t            _thrust_low_critical_time_ms; // system time in msec when the thrust_low_critical condition toggled
+
 
     // battery voltage compensation variables
     float               _batt_voltage;          // latest battery voltage reading

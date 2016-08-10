@@ -129,6 +129,8 @@ AP_Motors::AP_Motors(RC_Channel& rc_roll, RC_Channel& rc_pitch, RC_Channel& rc_t
     _throttle_in(0.0f),
     _throttle_filter(),
     _recovery_pct(1.0f),
+    _thrust_low_critical(false),
+    _thrust_low_critical_time_ms(0),
     _recovery_motor_mask(0),
     _recovery_ramp_time(0.25f)
 {

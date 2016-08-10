@@ -246,7 +246,17 @@ void AP_MotorsMatrix::output_armed_stabilizing()
     // calculate amount of yaw we can fit into the throttle range
     // this is always equal to or less than the requested yaw from the pilot or rate controller
     yaw_allowed = min(out_max_pwm - out_best_thr_pwm, out_best_thr_pwm - out_min_pwm) - (rpy_high-rpy_low)/2;
-    yaw_allowed = max(yaw_allowed, _yaw_headroom);
+    float yaw_headroom_dynamic = (float)_yaw_headroom;
+    if (_thrust_low_critical && (hal.scheduler->millis()-_thrust_low_critical_time_ms) <= THRUST_LOW_CRITICAL_BLEND_TIME_MS) {
+        // linear ramp down to zero with time
+        yaw_headroom_dynamic *= 1.0f - (float)(hal.scheduler->millis()-_thrust_low_critical_time_ms)/(float)THRUST_LOW_CRITICAL_BLEND_TIME_MS;
+    } else if (!_thrust_low_critical && (hal.scheduler->millis()-_thrust_low_critical_time_ms) <= THRUST_LOW_CRITICAL_BLEND_TIME_MS) {
+        // linear ramp up with time
+        yaw_headroom_dynamic *= (float)(hal.scheduler->millis()-_thrust_low_critical_time_ms)/(float)THRUST_LOW_CRITICAL_BLEND_TIME_MS;
+    } else {
+        yaw_headroom_dynamic = _yaw_headroom;
+    }
+    yaw_allowed = max(yaw_allowed, (int16_t)yaw_headroom_dynamic);
 
     if (_rc_yaw.pwm_out >= 0) {
         // if yawing right
